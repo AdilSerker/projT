@@ -48,6 +48,8 @@
 SourceArt/**/*.png
 SourceArt/**/*.tga
 
+*/StarterContent/
+
 # Binary Files
 Binaries/*
 Plugins/*/Binaries/*
