@@ -7,14 +7,27 @@ ATank* ATankPlayerController::GetControllerTank() const {
 	return Cast<ATank>(GetPawn());
 }
 
+void ATankPlayerController::AimTowardsCroshair() {
+	if (!GetControllerTank()) { return; }
+
+
+}
+
 void ATankPlayerController::BeginPlay() {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("TankPlayerController -> begin play"))
+	ATank* myTank = GetControllerTank();
+
+	if (!myTank) {
+		UE_LOG(LogTemp, Warning, TEXT("Tank is not init"))
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Tank name %s"), *myTank->GetName())
+	}
+
 }
 
 void ATankPlayerController::Tick(float DeltaTime) {
-	ATank* myTank = GetControllerTank();
+	Super::Tick(DeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("Tankname %s"), *myTank->GetName())
 }

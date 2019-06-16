@@ -16,9 +16,10 @@ class BT_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	ATank* GetControllerTank() const;
-	
 	void BeginPlay() override;
-
 	void Tick(float DeltaTime) override;
+
+private:
+	ATank* GetControllerTank() const;
+	void AimTowardsCroshair();
 };
