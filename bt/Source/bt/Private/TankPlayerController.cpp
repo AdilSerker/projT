@@ -2,6 +2,8 @@
 
 
 #include "TankPlayerController.h"
+#include "Engine/World.h"
+#include "Engine/Classes/Camera/PlayerCameraManager.h"
 
 ATank* ATankPlayerController::GetControllerTank() const {
 	return Cast<ATank>(GetPawn());
@@ -12,27 +14,49 @@ void ATankPlayerController::AimTowardsCroshair() {
 
 	FVector hitLocation;
 	if (GetSightRayHitLocation(hitLocation)) {
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *hitLocation.ToString())
+		UE_LOG(LogTemp, Warning, TEXT("hitLocation %s"), *hitLocation.ToString())
 	}
 }
 
-bool ATankPlayerController::GetSightRayHitLocation(FVector& hitLcoation) const {
+bool ATankPlayerController::GetSightRayHitLocation(FVector& hitLocation) const {
 	int32 vpSizeX, vpSizeY;
 	GetViewportSize(vpSizeX, vpSizeY);
 
 	FVector2D ScreenLocation(vpSizeX * CrossHairXLocation, vpSizeY * CrossHairYLocation);
 
-	FVector WordlLocation, WorldDirection;
+	FVector WorldDirection;
 
-	bool b = DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WordlLocation, WorldDirection);
-
-	if (b) {
-		UE_LOG(LogTemp, Warning, TEXT("WordlLocation %s"), *WordlLocation.ToString())
-		UE_LOG(LogTemp, Warning, TEXT("WorldDirection %s"), *WorldDirection.ToString())
+	if (GetLookDirection(ScreenLocation, WorldDirection)) {
+		GetLookVectorHitLocation(WorldDirection, hitLocation);
 	}
-		
 
 	return true;
+}
+
+bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
+{
+	FVector WordlLocation;
+	return DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WordlLocation, LookDirection);;
+}
+
+bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector& hitLcoation) const
+{	
+	FHitResult result;
+	FVector startLocation = PlayerCameraManager->GetCameraLocation();
+
+	bool isIntersect = GetWorld()->LineTraceSingleByChannel(
+		result,
+		startLocation,
+		startLocation + (LookDirection * LineTraceRange),
+		ECollisionChannel::ECC_Visibility
+	);
+
+	if (isIntersect) {
+		hitLcoation = result.Location;
+		return true;
+	}
+	hitLcoation = FVector(0.0f);
+	return false;
 }
 
 void ATankPlayerController::BeginPlay() {
