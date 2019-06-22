@@ -5,6 +5,13 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 
+
+void ATankAiController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	AimTowardsCroshair();
+}
+
 ATank* ATankAiController::GetControllerTank() const {
 	return Cast<ATank>(GetPawn());
 }
@@ -18,6 +25,21 @@ ATank* ATankAiController::GetPlayerTank() const
 	}
 
 	return nullptr;
+}
+
+void ATankAiController::AimTowardsCroshair() {
+
+	ATank* tank = GetControllerTank();
+
+	if (!tank) { return; }
+
+	FVector hitLocation;
+
+	ATank* playerTank = GetPlayerTank();
+	if (playerTank) {
+		hitLocation = playerTank->GetActorLocation();
+		tank->AimAt(hitLocation);
+	}
 }
 
 void ATankAiController::BeginPlay() {

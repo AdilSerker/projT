@@ -10,11 +10,13 @@ ATank* ATankPlayerController::GetControllerTank() const {
 }
 
 void ATankPlayerController::AimTowardsCroshair() {
-	if (!GetControllerTank()) { return; }
+	ATank* tank = GetControllerTank();
+
+	if (!tank) { return; }
 
 	FVector hitLocation;
 	if (GetSightRayHitLocation(hitLocation)) {
-		UE_LOG(LogTemp, Warning, TEXT("hitLocation %s"), *hitLocation.ToString())
+		tank->AimAt(hitLocation);
 	}
 }
 
