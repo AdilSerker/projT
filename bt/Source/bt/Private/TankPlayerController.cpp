@@ -16,16 +16,17 @@ void ATankPlayerController::AimTowardsCroshair() {
 	if (!tank) { return; }
 
 	FVector hitLocation;
-	if (GetSightRayHitLocation(hitLocation)) {
-		tank->AimAt(hitLocation);
-	}
+	GetSightRayHitLocation(hitLocation);
+
+	tank->AimAt(hitLocation);
+
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector& hitLocation) const {
 	int32 vpSizeX, vpSizeY;
 	GetViewportSize(vpSizeX, vpSizeY);
 
-	FVector2D ScreenLocation(vpSizeX * CrossHairXLocation, vpSizeY * CrossHairYLocation);
+	auto ScreenLocation = FVector2D(vpSizeX * CrossHairXLocation, vpSizeY * CrossHairYLocation);
 
 	FVector WorldDirection;
 
@@ -46,11 +47,12 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 {	
 	FHitResult result;
 	FVector startLocation = PlayerCameraManager->GetCameraLocation();
+	FVector endLocation = startLocation + (LookDirection * LineTraceRange);
 
 	bool isIntersect = GetWorld()->LineTraceSingleByChannel(
 		result,
 		startLocation,
-		startLocation + (LookDirection * LineTraceRange),
+		endLocation,
 		ECollisionChannel::ECC_Visibility
 	);
 

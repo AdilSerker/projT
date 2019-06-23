@@ -15,7 +15,7 @@ class BT_API UTankBarrel : public UStaticMeshComponent
 	GENERATED_BODY()
 	
 public:
-	void Elevate(float DegresPerSecond);
+	void Elevate(float RelativeSpeed);
 
 
 private:
