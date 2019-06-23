@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "TankBarrel.h"
+#include "TankTurret.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
@@ -43,8 +44,7 @@ void UTankAimingComponent::AimAt(FVector hitLocation, float launchSpeed) {
 	if (isHaveAimSolutuin) {
 		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
-
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *AimDirection.ToString())
+		MoveTurretTowards(AimDirection);
 	}
 
 }
@@ -60,8 +60,23 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirrection)
 	Barrel->Elevate(deltaRotation.Pitch);
 }
 
+void UTankAimingComponent::MoveTurretTowards(FVector AimDirrection)
+{
+	FRotator turretRotation = Barrel->GetForwardVector().Rotation();
+	FRotator aimRotation = AimDirrection.Rotation();
+
+	FRotator deltaRotation = aimRotation - turretRotation;
+
+	Turret->Rotate(deltaRotation.Yaw);
+}
+
 
 void UTankAimingComponent::SetBarrelReference(UTankBarrel* barrelToSet) {
 	this->Barrel = barrelToSet;
+}
+
+void UTankAimingComponent::SetTurretReference(UTankTurret* turretToSet)
+{
+	this->Turret = turretToSet;
 }
 
