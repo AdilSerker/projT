@@ -4,6 +4,8 @@
 #include "TankAimingComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
+#include "TankBarrel.h"
+#include "Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -16,36 +18,43 @@ UTankAimingComponent::UTankAimingComponent()
 }
 
 
-void UTankAimingComponent::AimAt(FVector hitLocation) {
-	FString OurName = GetOwner()->GetName();
+void UTankAimingComponent::AimAt(FVector hitLocation, float launchSpeed) {
+	if (!Barrel) { return; }
 
-	FVector barrelLocation = barrel->GetComponentLocation();
-	UE_LOG(LogTemp, Warning, TEXT("%s aiming at %s from %s"),
-		*OurName,
-		*hitLocation.ToString(),
-		*barrelLocation.ToString()
-	)
+	FVector OutLaunchVelocity;
+
+	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
+
+
+	bool isHaveAimSolutuin = UGameplayStatics::SuggestProjectileVelocity(
+		this,
+		OutLaunchVelocity,
+		StartLocation,
+		hitLocation,
+		launchSpeed,
+		ESuggestProjVelocityTraceOption::DoNotTrace
+	);
+
+	if (isHaveAimSolutuin) {
+		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		MoveBarrelTowards(AimDirection);
+	}
+
 }
 
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
+
+void UTankAimingComponent::MoveBarrelTowards(FVector AimDirrection)
 {
-	Super::BeginPlay();
+	FRotator barrelRotation = Barrel->GetForwardVector().Rotation();
+	FRotator aimRotation = AimDirrection.Rotation();
 
-	// ...
-	
+	FRotator deltaRotation = aimRotation - barrelRotation;
+
+	Barrel->Elevate(5);
 }
 
 
-// Called every frame
-void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void UTankAimingComponent::SetBarrelReference(UStaticMeshComponent* barrelToSet) {
-	this->barrel = barrelToSet;
+void UTankAimingComponent::SetBarrelReference(UTankBarrel* barrelToSet) {
+	this->Barrel = barrelToSet;
 }
 

@@ -3,6 +3,7 @@
 
 #include "TankPlayerController.h"
 #include "Engine/World.h"
+#include "Tank.h"
 #include "Engine/Classes/Camera/PlayerCameraManager.h"
 
 ATank* ATankPlayerController::GetControllerTank() const {
